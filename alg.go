@@ -7,8 +7,8 @@ package runtimer
 import "unsafe"
 
 const (
-	c0 = uintptr((8-PtrSize)/4*2860486313 + (PtrSize-4)/4*33054211828000289)
-	c1 = uintptr((8-PtrSize)/4*3267000013 + (PtrSize-4)/4*23344194077549503)
+	C0 = uintptr((8-PtrSize)/4*2860486313 + (PtrSize-4)/4*33054211828000289)
+	C1 = uintptr((8-PtrSize)/4*3267000013 + (PtrSize-4)/4*23344194077549503)
 )
 
 // type algorithms - known to compiler

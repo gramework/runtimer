@@ -5,7 +5,7 @@ package runtimer
 // Needs to be in sync with
 // ../cmd/compile/internal/gc/reflect.go:/^func.dumptypestructs.
 type Itab struct {
-	Inter  *interfacetype
+	Inter  *InterfaceType
 	Type   *Type
 	Link   *Itab
 	Hash   uint32 // copy of _type.hash. Used for type switches.

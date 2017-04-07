@@ -1,4 +1,4 @@
-// +build +msan
+// +build msan
 
 package runtimer
 

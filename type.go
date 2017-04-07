@@ -2,18 +2,18 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Runtime type representation.
+// Runtime Type representation.
 
 package runtimer
 
 import "unsafe"
 
-// Tflag is documented in reflect/type.go.
+// Tflag is documented in reflect/Type.go.
 //
 // Tflag values must be kept in sync with copies in:
 //	cmd/compile/internal/gc/reflect.go
 //	cmd/link/internal/ld/decodesym.go
-//	reflect/type.go
+//	reflect/Type.go
 type Tflag uint8
 
 const (
@@ -23,8 +23,8 @@ const (
 )
 
 // Needs to be in sync with ../cmd/compile/internal/ld/decodesym.go:/^func.commonsize,
-// ../cmd/compile/internal/gc/reflect.go:/^func.dcommontype and
-// ../reflect/type.go:/^type.rtype.
+// ../cmd/compile/internal/gc/reflect.go:/^func.dcommonType and
+// ../reflect/Type.go:/^Type.rType.
 type Type struct {
 	Size       uintptr
 	Ptrdata    uintptr // size of memory prefix holding all pointers
@@ -34,7 +34,7 @@ type Type struct {
 	Fieldalign uint8
 	Kind       uint8
 	Alg        *TypeAlg
-	// gcdata stores the GC type data for the garbage collector.
+	// gcdata stores the GC Type data for the garbage collector.
 	// If the KindGCProg bit is set in kind, gcdata is a GC program.
 	// Otherwise it is a ptrmask bitmap. See mbitmap.go for details.
 	Gcdata    *byte
@@ -42,7 +42,7 @@ type Type struct {
 	PtrToThis TypeOff
 }
 
-func (t *Type) string() string {
+func (t *Type) String() string {
 	s := t.NameOff(t.Str).Name()
 	if t.Tflag&TflagExtraStar != 0 {
 		return s[1:]
@@ -50,77 +50,73 @@ func (t *Type) string() string {
 	return s
 }
 
-func (t *Type) uncommon() *uncommontype {
+func (t *Type) Uncommon() *UncommonType {
 	if t.Tflag&TflagUncommon == 0 {
 		return nil
 	}
 	switch t.Kind & KindMask {
 	case KindStruct:
 		type u struct {
-			structtype
-			u uncommontype
+			StructType
+			u UncommonType
 		}
 		return &(*u)(unsafe.Pointer(t)).u
 	case KindPtr:
 		type u struct {
-			ptrtype
-			u uncommontype
+			PtrType
+			u UncommonType
 		}
 		return &(*u)(unsafe.Pointer(t)).u
 	case KindFunc:
 		type u struct {
-			functype
-			u uncommontype
+			FuncType
+			u UncommonType
 		}
 		return &(*u)(unsafe.Pointer(t)).u
 	case KindSlice:
 		type u struct {
-			slicetype
-			u uncommontype
+			SliceType
+			u UncommonType
 		}
 		return &(*u)(unsafe.Pointer(t)).u
 	case KindArray:
 		type u struct {
-			arraytype
-			u uncommontype
+			ArrayType
+			u UncommonType
 		}
 		return &(*u)(unsafe.Pointer(t)).u
 	case KindChan:
 		type u struct {
-			chantype
-			u uncommontype
+			ChanType
+			u UncommonType
 		}
 		return &(*u)(unsafe.Pointer(t)).u
 	case KindMap:
 		type u struct {
-			Maptype
-			u uncommontype
+			MapType
+			u UncommonType
 		}
 		return &(*u)(unsafe.Pointer(t)).u
 	case KindInterface:
 		type u struct {
-			interfacetype
-			u uncommontype
+			InterfaceType
+			u UncommonType
 		}
 		return &(*u)(unsafe.Pointer(t)).u
 	default:
 		type u struct {
 			Type
-			u uncommontype
+			u UncommonType
 		}
 		return &(*u)(unsafe.Pointer(t)).u
 	}
-}
-
-func hasPrefix(s, prefix string) bool {
-	return len(s) >= len(prefix) && s[:len(prefix)] == prefix
 }
 
 func (t *Type) Name() string {
 	if t.Tflag&TflagNamed == 0 {
 		return ""
 	}
-	s := t.string()
+	s := t.String()
 	i := len(s) - 1
 	for i >= 0 {
 		if s[i] == '.' {
@@ -131,7 +127,7 @@ func (t *Type) Name() string {
 	return s[i+1:]
 }
 
-// Mutual exclusion locks.  In the uncontended case,
+// Mutex - Mutual exclusion locks.  In the uncontended case,
 // as fast as spin locks (just a few user-level instructions),
 // but on the contention path they sleep in the kernel.
 // A zeroed Mutex is unlocked (no need to initialize each lock).
@@ -171,26 +167,26 @@ func (t *Type) TextOff(off textOff) unsafe.Pointer {
 //go:linkname Type.textOff runtime._type.textOff
 func (t *Type) textOff(off textOff) unsafe.Pointer
 
-func (t *functype) in() []*Type {
-	// See funcType in reflect/type.go for details on data layout.
-	uadd := uintptr(unsafe.Sizeof(functype{}))
+func (t *FuncType) in() []*Type {
+	// See FuncType in reflect/Type.go for details on data layout.
+	uadd := uintptr(unsafe.Sizeof(FuncType{}))
 	if t.typ.Tflag&TflagUncommon != 0 {
-		uadd += unsafe.Sizeof(uncommontype{})
+		uadd += unsafe.Sizeof(UncommonType{})
 	}
 	return (*[1 << 20]*Type)(Add(unsafe.Pointer(t), uadd))[:t.inCount]
 }
 
-func (t *functype) out() []*Type {
-	// See funcType in reflect/type.go for details on data layout.
-	uadd := uintptr(unsafe.Sizeof(functype{}))
+func (t *FuncType) out() []*Type {
+	// See FuncType in reflect/Type.go for details on data layout.
+	uadd := uintptr(unsafe.Sizeof(FuncType{}))
 	if t.typ.Tflag&TflagUncommon != 0 {
-		uadd += unsafe.Sizeof(uncommontype{})
+		uadd += unsafe.Sizeof(UncommonType{})
 	}
 	outCount := t.outCount & (1<<15 - 1)
 	return (*[1 << 20]*Type)(Add(unsafe.Pointer(t), uadd))[t.inCount : t.inCount+outCount]
 }
 
-func (t *functype) dotdotdot() bool {
+func (t *FuncType) Dotdotdot() bool {
 	return t.outCount&(1<<15) != 0
 }
 
@@ -205,11 +201,11 @@ type method struct {
 	tfn  textOff
 }
 
-type uncommontype struct {
-	pkgpath NameOff
-	mcount  uint16 // number of methods
+type UncommonType struct {
+	Pkgpath NameOff
+	Mcount  uint16 // number of methods
 	_       uint16 // unused
-	moff    uint32 // offset from this uncommontype to [mcount]method
+	Moff    uint32 // offset from this UncommonType to [mcount]method
 	_       uint32 // unused
 }
 
@@ -218,18 +214,18 @@ type imethod struct {
 	ityp TypeOff
 }
 
-type interfacetype struct {
+type InterfaceType struct {
 	typ     Type
 	pkgpath Name
 	mhdr    []imethod
 }
 
-type Maptype struct {
+type MapType struct {
 	Typ           Type
 	Key           *Type
 	Elem          *Type
-	Bucket        *Type  // internal type representing a hash bucket
-	Hmap          *Type  // internal type representing a hmap
+	Bucket        *Type  // internal Type representing a hash bucket
+	Hmap          *Type  // internal Type representing a hmap
 	Keysize       uint8  // size of key slot
 	Indirectkey   bool   // store ptr to key instead of key itself
 	Valuesize     uint8  // size of value slot
@@ -239,75 +235,75 @@ type Maptype struct {
 	Needkeyupdate bool   // true if we need to update key on an overwrite
 }
 
-type arraytype struct {
-	typ   Type
-	elem  *Type
-	slice *Type
-	len   uintptr
+type ArrayType struct {
+	Typ   Type
+	Elem  *Type
+	Slice *Type
+	Len   uintptr
 }
 
-type chantype struct {
-	typ  Type
-	elem *Type
-	dir  uintptr
+type ChanType struct {
+	Typ  Type
+	Elem *Type
+	Dir  uintptr
 }
 
-type slicetype struct {
-	typ  Type
-	elem *Type
+type SliceType struct {
+	Typ  Type
+	Elem *Type
 }
 
-type functype struct {
+type FuncType struct {
 	typ      Type
 	inCount  uint16
 	outCount uint16
 }
 
-type ptrtype struct {
+type PtrType struct {
 	typ  Type
 	elem *Type
 }
 
-type structfield struct {
+type Structfield struct {
 	Name       Name
-	typ        *Type
-	offsetAnon uintptr
+	Typ        *Type
+	OffsetAnon uintptr
 }
 
-func (f *structfield) offset() uintptr {
-	return f.offsetAnon >> 1
+func (f *Structfield) Offset() uintptr {
+	return f.OffsetAnon >> 1
 }
 
-type structtype struct {
-	typ     Type
-	pkgPath Name
-	fields  []structfield
+type StructType struct {
+	Typ     Type
+	PkgPath Name
+	Fields  []Structfield
 }
 
-// Name is an encoded type Name with optional extra data.
-// See reflect/type.go for details.
+// Name is an encoded Type Name with optional extra data.
+// See reflect/Type.go for details.
 type Name struct {
 	Bytes *byte
 }
 
-func (n Name) data(off int) *byte {
+func (n Name) Data(off int) *byte {
 	return (*byte)(Add(unsafe.Pointer(n.Bytes), uintptr(off)))
 }
 
-func (n Name) isExported() bool {
+func (n Name) IsExported() bool {
 	return (*n.Bytes)&(1<<0) != 0
 }
 
 func (n Name) NameLen() int {
-	return int(uint16(*n.data(1))<<8 | uint16(*n.data(2)))
+	return int(uint16(*n.Data(1))<<8 | uint16(*n.Data(2)))
 }
 
-func (n Name) tagLen() int {
-	if *n.data(0)&(1<<1) == 0 {
+func (n Name) TagLen() int {
+	if *n.Data(0)&(1<<1) == 0 {
 		return 0
 	}
 	off := 3 + n.NameLen()
-	return int(uint16(*n.data(off))<<8 | uint16(*n.data(off + 1)))
+	return int(uint16(*n.Data(off))<<8 | uint16(*n.Data(off + 1)))
 }
 
 func (n Name) Name() (s string) {
@@ -319,51 +315,51 @@ func (n Name) Name() (s string) {
 		return ""
 	}
 	hdr := (*StringStruct)(unsafe.Pointer(&s))
-	hdr.Str = unsafe.Pointer(n.data(3))
+	hdr.Str = unsafe.Pointer(n.Data(3))
 	hdr.Len = nl
 	return s
 }
 
-func (n Name) tag() (s string) {
-	tl := n.tagLen()
+func (n Name) Tag() (s string) {
+	tl := n.TagLen()
 	if tl == 0 {
 		return ""
 	}
 	nl := n.NameLen()
 	hdr := (*StringStruct)(unsafe.Pointer(&s))
-	hdr.Str = unsafe.Pointer(n.data(3 + nl + 2))
+	hdr.Str = unsafe.Pointer(n.Data(3 + nl + 2))
 	hdr.Len = tl
 	return s
 }
 
-func (n Name) pkgPath() string {
-	if n.Bytes == nil || *n.data(0)&(1<<2) == 0 {
+func (n Name) PkgPath() string {
+	if n.Bytes == nil || *n.Data(0)&(1<<2) == 0 {
 		return ""
 	}
 	off := 3 + n.NameLen()
-	if tl := n.tagLen(); tl > 0 {
+	if tl := n.TagLen(); tl > 0 {
 		off += 2 + tl
 	}
 	var NameOff NameOff
-	copy((*[4]byte)(unsafe.Pointer(&NameOff))[:], (*[4]byte)(unsafe.Pointer(n.data(off)))[:])
+	copy((*[4]byte)(unsafe.Pointer(&NameOff))[:], (*[4]byte)(unsafe.Pointer(n.Data(off)))[:])
 	pkgPathName := resolveNameOff(unsafe.Pointer(n.Bytes), NameOff)
 	return pkgPathName.Name()
 }
 
-// TypesEqual reports whether two types are equal.
+// TypesEqual reports whether two Types are equal.
 //
 // Everywhere in the runtime and reflect packages, it is assumed that
-// there is exactly one *Type per Go type, so that pointer equality
-// can be used to test if types are equal. There is one place that
-// breaks this assumption: buildmode=shared. In this case a type can
+// there is exactly one *Type per Go Type, so that pointer equality
+// can be used to test if Types are equal. There is one place that
+// breaks this assumption: buildmode=shared. In this case a Type can
 // appear as two different pieces of memory. This is hidden from the
-// runtime and reflect package by the per-module typemap built in
-// typelinksinit. It uses typesEqual to map types from later modules
+// runtime and reflect package by the per-module Typemap built in
+// Typelinksinit. It uses TypesEqual to map Types from later modules
 // back into earlier ones.
 //
-// Only typelinksinit needs this function.
+// Only Typelinksinit needs this function.
 func TypesEqual(t, v *Type) bool {
-	return typesEqual(t, v)
+	return TypesEqual(t, v)
 }
 
 //go:linkname typesEqual runtime.typesEqual
