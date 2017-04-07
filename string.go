@@ -4,7 +4,7 @@
 
 package runtimer
 
-import "unsafe"
+import "unsafe" // #nosec
 
 type StringStruct struct {
 	Str unsafe.Pointer

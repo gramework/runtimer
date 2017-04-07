@@ -6,7 +6,7 @@
 
 package runtimer
 
-import "unsafe"
+import "unsafe" // #nosec
 
 // Tflag is documented in reflect/Type.go.
 //

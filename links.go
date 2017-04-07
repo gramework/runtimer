@@ -2,7 +2,7 @@
 package runtimer
 
 import (
-	"unsafe" // required to use go:linkname
+	"unsafe" // #nosec required to use go:linkname
 )
 
 func Or8(ptr *uint8, val uint8) {

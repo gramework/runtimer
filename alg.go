@@ -4,7 +4,7 @@
 
 package runtimer
 
-import "unsafe"
+import "unsafe" // #nosec
 
 const (
 	C0 = uintptr((8-PtrSize)/4*2860486313 + (PtrSize-4)/4*33054211828000289)

@@ -1,6 +1,6 @@
 package runtimer
 
-import "unsafe"
+import "unsafe" // #nosec
 
 // WIP, don't use those now
 func callptr(ptr unsafe.Pointer) {}

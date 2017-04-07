@@ -1,6 +1,6 @@
 package runtimer
 
-import "unsafe"
+import "unsafe" // #nosec
 
 func Add(p unsafe.Pointer, x uintptr) unsafe.Pointer {
 	return add(p, x)

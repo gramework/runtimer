@@ -1,6 +1,6 @@
 package runtimer
 
-import "unsafe"
+import "unsafe" // #nosec
 
 func PtrToType(ptr unsafe.Pointer) *Type {
 	return (*Type)(ptr)
