@@ -254,9 +254,9 @@ type SliceType struct {
 }
 
 type SliceType2 struct {
-	array unsafe.Pointer
-	len   int
-	cap   int
+	Array unsafe.Pointer
+	Len   int
+	Cap   int
 }
 
 type FuncType struct {
