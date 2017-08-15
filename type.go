@@ -253,6 +253,12 @@ type SliceType struct {
 	Elem *Type
 }
 
+type SliceType2 struct {
+	array unsafe.Pointer
+	len   int
+	cap   int
+}
+
 type FuncType struct {
 	typ      Type
 	inCount  uint16
