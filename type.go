@@ -6,7 +6,9 @@
 
 package runtimer
 
-import "unsafe" // #nosec
+import (
+	"unsafe"
+) // #nosec
 
 // Tflag is documented in reflect/Type.go.
 //
@@ -25,6 +27,7 @@ const (
 // Needs to be in sync with ../cmd/compile/internal/ld/decodesym.go:/^func.commonsize,
 // ../cmd/compile/internal/gc/reflect.go:/^func.dcommonType and
 // ../reflect/Type.go:/^Type.rType.
+//go:linkname Type runtime._type
 type Type struct {
 	Size       uintptr
 	Ptrdata    uintptr // size of memory prefix holding all pointers
@@ -160,12 +163,12 @@ func (t *Type) TypeOff(off TypeOff) *Type {
 	return ResolveTypeOff(unsafe.Pointer(t), off)
 }
 
-func (t *Type) TextOff(off textOff) unsafe.Pointer {
-	return t.textOff(off)
-}
+// func (t *Type) TextOff(off textOff) unsafe.Pointer {
+// 	return t.textOff(off)
+// }
 
-//go:linkname Type.textOff runtime._type.textOff
-func (t *Type) textOff(off textOff) unsafe.Pointer
+// //go:linkname Type.textOff runtime._type.textOff
+// func (t *Type) textOff(off textOff) unsafe.Pointer
 
 func (t *FuncType) in() []*Type {
 	// See FuncType in reflect/Type.go for details on data layout.
