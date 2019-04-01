@@ -94,11 +94,11 @@ func Newarray(typ *Type, n int) unsafe.Pointer {
 func newarray(typ *Type, n int) unsafe.Pointer
 
 func Newobject(typ *Type) unsafe.Pointer {
-	return newobject(typ)
+	return mallocgc(typ.Size, typ, true)
 }
 
-//go:linkname newobject runtime.newobject
-func newobject(typ *Type) unsafe.Pointer
+//go:linkname mallocgc runtime.mallocgc
+func mallocgc(size uintptr, typ *Type, needzero bool) unsafe.Pointer
 
 func Typedmemmove(typ *Type, dst, src unsafe.Pointer) {
 	typedmemmove(typ, dst, src)
