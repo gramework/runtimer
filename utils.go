@@ -11,8 +11,7 @@ func PtrToString(ptr unsafe.Pointer) string {
 func PtrToStringPtr(ptr unsafe.Pointer) *string {
 	return (*string)(ptr)
 }
-/*
+
 func PtrPtrToStringPtr(ptr *unsafe.Pointer) *string {
 	return (*string)(*ptr)
 }
-*/
