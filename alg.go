@@ -90,7 +90,7 @@ func MemhashVarlen(p unsafe.Pointer, h uintptr) uintptr {
 	return memhashVarlen(p, h)
 }
 
-//go:linkname memhash128 runtime.memhash_varlen
+//go:linkname memhashVarlen runtime.memhash_varlen
 func memhashVarlen(p unsafe.Pointer, h uintptr) uintptr
 
 var AlgArray = [AlgMax]TypeAlg{
